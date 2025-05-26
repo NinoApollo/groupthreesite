@@ -1,4 +1,6 @@
 from django.db import models
+from django.contrib.auth.hashers import make_password, check_password
+
 
 # Create your models here.
 
@@ -10,6 +12,10 @@ class Genders(models.Model):
     gender = models.CharField(max_length=55, blank=False) #gender VARCHAR(55) NOT NULL
     created_at = models.DateTimeField(auto_now_add=True) #created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
     updated_at = models.DateTimeField(auto_now=True) #updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+
+def __str__(self):
+    return self.gender
+
 
 class Users(models.Model):
     class Meta:
@@ -26,3 +32,9 @@ class Users(models.Model):
     password = models.CharField(max_length=255, blank=False) #password VARCHAR(255) NOT NULL
     created_at = models.DateTimeField(auto_now_add=True) #created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
     updated_at = models.DateTimeField(auto_now=True) #updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+
+    def set_password(self, raw_password):
+        self.password = make_password(raw_password)
+    
+    def check_password(self, raw_password):
+        return check_password(raw_password, self.password)

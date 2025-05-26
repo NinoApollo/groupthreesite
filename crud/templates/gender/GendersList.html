@@ -1,39 +1,88 @@
 {% extends "layout/base.html" %}
 
 {% block 'title' %}
-Gender List
+Gender Management
 {% endblock 'title' %}
 
 {% block 'content' %}
+{% comment %} {% include "include/ToastMessage.html" %} {% endcomment %}
+<div class="rounded-lg p-6 max-w-4xl mx-auto">
+    <div class="bg-white rounded-lg shadow-sm p-4 sm:p-6">
+        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
+            <h2 class="text-xl sm:text-2xl font-bold text-gray-800">Gender List</h2>
+            <a href="/gender/add" class="flex items-center bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md text-sm font-medium transition-colors w-full sm:w-auto justify-center">
+                <i class="fas fa-plus mr-2"></i> Add Gender
+            </a>
+        </div>
 
-{% include 'include/Sidebar.html' %}
-{% include 'include/ToastMessage.html' %}
+        <div class="relative overflow-x-auto rounded-lg border border-gray-200">
+            <div class="overflow-x-auto">
+                <table class="w-full text-sm text-left text-gray-500">
+                    <thead class="text-xs text-white bg-blue-600">
+                        <tr>
+                            <th scope="col" class="px-4 py-3 sm:px-6 sm:py-3">Gender</th>
+                            <th scope="col" class="px-4 py-3 sm:px-6 sm:py-3 text-right">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for gender in genders %}
+                        <tr class="bg-white border-b hover:bg-gray-50 transition-colors">
+                            <td class="px-4 py-4 sm:px-6 font-medium text-gray-900 whitespace-nowrap">
+                                {{ gender.gender }}
+                            </td>
+                            <td class="px-4 py-4 sm:px-6 text-right">
+                                <div class="inline-flex flex-col sm:flex-row gap-2 sm:gap-0 rounded-md shadow-sm w-full sm:w-auto">
+                                    <a href="/gender/edit/{{ gender.gender_id }}" class="flex items-center justify-center sm:justify-start bg-blue-600 hover:bg-blue-700 text-white px-3 py-2 text-sm font-medium rounded sm:rounded-l-md transition-colors w-full sm:w-auto">
+                                        <i class="fas fa-edit mr-1"></i> <span class="sm:inline">Edit</span>
+                                    </a>
+                                    <a href="/gender/delete/{{ gender.gender_id }}" class="flex items-center justify-center sm:justify-start bg-red-600 hover:bg-red-700 text-white px-3 py-2 text-sm font-medium rounded sm:rounded-r-md sm:-ml-px transition-colors w-full sm:w-auto">
+                                        <i class="fas fa-trash-alt mr-1"></i> <span class="sm:inline">Delete</span>
+                                    </a>
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
 
-<div class="p-2 sm:ml-64 mt-16 md:mt-14">
-    <div class="relative overflow-x-auto rounded-sm shadow-sm">
-        <table class="w-full">
-            <thead class="text-xs text-white bg-blue-600">
-                <tr>
-                    <th class="px-6 py-3">Gender</th>
-                    <th class="px-6 py-3">Action</th>
-                </tr>
-            </thead>
-            <tbody class="text-xs text-black">
-                {% for gender in genders %}
-                <tr class="hover:bg-gray-100 border-b border-gray-200">
-                    <td class="px-6 py-3">{{ gender.gender }}</td>
-                    <td class="px-6 py-3">
-                        <div class="inline-flex shadow-sm">
-                            <a href="/gender/edit/{{ gender.gender_id }}" class="bg-green-600 px-3 py-2.5 font-medium text-sm text-white rounded-s-sm hover:bg-green-700 hover:outline-none">Edit</a>
-                            <a href="/gender/delete/{{ gender.gender_id }}" class="bg-red-600 px-3 py-2.5 font-medium text-sm text-white rounded-e-sm hover:bg-red-700 hover:outline-none">Delete</a>
-                        </div>
-                    </td>
-                </tr>
+        <!-- Pagination -->
+        {% if genders.has_other_pages %}
+        <div class="flex flex-col sm:flex-row items-center justify-between gap-4 mt-6">
+            <div class="text-sm text-gray-700 text-center sm:text-left">
+                Showing <span class="font-medium">{{ genders.start_index }}</span> to <span class="font-medium">{{ genders.end_index }}</span> of <span class="font-medium">{{ genders.paginator.count }}</span> results
+            </div>
+            <div class="flex flex-wrap justify-center gap-2">
+                {% if genders.has_previous %}
+                <a href="?page=1" class="px-3 py-1 border rounded-md text-sm font-medium hover:bg-gray-100 transition-colors" aria-label="First">
+                    <i class="fas fa-angle-double-left"></i>
+                </a>
+                <a href="?page={{ genders.previous_page_number }}" class="px-3 py-1 border rounded-md text-sm font-medium hover:bg-gray-100 transition-colors" aria-label="Previous">
+                    <i class="fas fa-angle-left"></i>
+                </a>
+                {% endif %}
+
+                {% for num in genders.paginator.page_range %}
+                    {% if genders.number == num %}
+                        <span class="px-3 py-1 border border-blue-500 bg-blue-50 text-blue-600 rounded-md text-sm font-medium">{{ num }}</span>
+                    {% elif num > genders.number|add:'-3' and num < genders.number|add:'3' %}
+                        <a href="?page={{ num }}" class="px-3 py-1 border rounded-md text-sm font-medium hover:bg-gray-100 transition-colors">{{ num }}</a>
+                    {% endif %}
                 {% endfor %}
-            </tbody>
-        </table>
+
+                {% if genders.has_next %}
+                <a href="?page={{ genders.next_page_number }}" class="px-3 py-1 border rounded-md text-sm font-medium hover:bg-gray-100 transition-colors" aria-label="Next">
+                    <i class="fas fa-angle-right"></i>
+                </a>
+                <a href="?page={{ genders.paginator.num_pages }}" class="px-3 py-1 border rounded-md text-sm font-medium hover:bg-gray-100 transition-colors" aria-label="Last">
+                    <i class="fas fa-angle-double-right"></i>
+                </a>
+                {% endif %}
+            </div>
+        </div>
+        {% endif %}
     </div>
 </div>
-
 
 {% endblock 'content' %}

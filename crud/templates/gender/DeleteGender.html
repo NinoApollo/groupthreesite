@@ -1,23 +1,46 @@
 {% extends "layout/base.html" %}
 
-{% block 'title' %} Delete Gender Page {% endblock 'title' %}
+{% block 'title' %} Delete Gender {% endblock 'title' %}
 
 {% block 'content' %}
-{% include "include/Sidebar.html" %}
-{% include "include/ToastMessage.html" %}
+{% comment %} {% include "include/ToastMessage.html" %} {% endcomment %}
 
-<div class="p-2 sm:ml-64 mt-16 md:mt-14">
-    <form action="#" method="post">
-        {% csrf_token %}
-        <div class="mx-auto w-full md:w-1/3 mb-2">
-            <label for="gender" class="block text-sm font-medium mb-2">Gender</label>
-            <input type="text" class="bg-white mb-2 px-3 py-2.5 border border-gray-300 text-black block text-sm rounded sm w-full focus:outline-none focus:ring-blue-600 focus:border-blue-600" name="gender" id="gender" value="{{ gender.gender }}"/>
-            <div class="flex justify-end">
-                <a href="/gender/list" class="text-sm font-medium text-black px-3 py-2.5 rounded-sm shadow-sm mr-1 cursor-pointer hover:bg-gray-100 hover:outline-none">Back</a>
-                <button type="submit" class="bg-red-600 hover:bg-red-700 text-sm font-medium text-white px-3 py-2.5 rounded-sm shadow-sm cursor-pointer hover:outline-none">Delete Gender</button>
-            </div>
+<div class="p-4 sm:ml-64 mt-16">
+    <div class="bg-white rounded-lg shadow-sm p-6 max-w-2xl mx-auto">
+        <div class="mb-6">
+            <h2 class="text-2xl font-bold text-gray-800">Delete Gender</h2>
+            <p class="text-sm text-gray-600">Are you sure you want to delete this gender?</p>
         </div>
-    </form>
+            <form action="{% url 'delete_gender' genderId=gender.gender_id %}" method="post" class="space-y-4">
+            {% csrf_token %}
+            <div class="bg-red-50 border-l-4 border-red-500 p-4">
+                <div class="flex">
+                    <div class="flex-shrink-0">
+                        <i class="fas fa-exclamation-circle text-red-500"></i>
+                    </div>
+                    <div class="ml-3">
+                        <p class="text-sm text-red-700">
+                            Warning: This action cannot be undone. All users associated with this gender will need to be updated.
+                        </p>
+                    </div>
+                </div>
+            </div>
+            <div>
+                <label for="gender" class="block text-sm font-medium text-gray-700 mb-1">Gender Name</label>
+                <input type="text" name="gender" id="gender" readonly
+                    class="w-full px-3 py-2 border border-gray-300 rounded-md bg-gray-100"
+                    value="{{ gender.gender }}">
+            </div>
+            <div class="flex justify-end space-x-3 pt-2">
+                <a href="/gender/list" class="flex items-center bg-gray-200 hover:bg-gray-300 text-gray-800 px-4 py-2 rounded-md text-sm font-medium transition-colors">
+                    <i class="fas fa-arrow-left mr-2"></i> Cancel
+                </a>
+                <button type="submit" class="flex items-center bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-md text-sm font-medium transition-colors">
+                    <i class="fas fa-trash-alt mr-2"></i> Confirm Delete
+                </button>
+            </div>
+        </form>
+    </div>
 </div>
 
 {% endblock 'content' %}

@@ -1,49 +1,170 @@
-{% extends "layout/base.html" %}
+    {% extends "layout/base.html" %}
 
-{% block 'title' %}
-Users List
-{% endblock 'title' %}
+    {% block 'title' %}User List{% endblock 'title' %}
 
-{% block 'content' %}
-
-{% include 'include/Sidebar.html' %}
-{% include 'include/ToastMessage.html' %}
-
-<div class="p-2 sm:ml-64 mt-16 md:mt-14">
-    <div class="relative overflow-x-auto rounded-sm shadow-sm">
-        <table class="w-full">
-            <thead class="text-xs text-white bg-blue-600">
-                <tr>
-                    <th class="px-6 py-3">Full Name</th>
-                    <th class="px-6 py-3">Gender</th>
-                    <th class="px-6 py-3">Birth Date</th>
-                    <th class="px-6 py-3">Address</th>
-                    <th class="px-6 py-3">Contact Number</th>
-                    <th class="px-6 py-3">Email</th>
-                    <th class="px-6 py-3">Action</th>
-                </tr>
-            </thead>
-            <tbody class="text-xs text-black">
-                {% for user in users %}
-                <tr class="hover:bg-gray-100 border-b border-gray-200">
-                    <td class="px-6 py-3">{{ user.full_name }}</td>
-                    <td class="px-6 py-3">{{ user.gender.gender }}</td>
-                    <td class="px-6 py-3">{{ user.birth_date }}</td>
-                    <td class="px-6 py-3">{{ user.address }}</td>
-                    <td class="px-6 py-3">{{ user.contact_number }}</td>
-                    <td class="px-6 py-3">{{ user.email }}</td>
-                    <td class="px-6 py-3">
-                        <div class="inline-flex shadow-sm">
-                            <a href="#" class="bg-green-600 px-3 py-2.5 font-medium text-sm text-white rounded-s-sm hover:bg-green-700 hover:outline-none">Edit</a>
-                            <a href="#" class="bg-red-600 px-3 py-2.5 font-medium text-sm text-white rounded-e-sm hover:bg-red-700 hover:outline-none">Delete</a>
+    {% block 'content' %}
+    <div class="p-4">
+        <div class="bg-white rounded-lg shadow-sm p-6 max-w-4xl mx-auto">
+            <!-- Header with Search -->
+            <div class="px-4 py-3 border-b border-gray-200 bg-gray-50 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
+                <div class="min-w-0">
+                    <h1 class="text-lg font-semibold text-gray-800 truncate">User List</h1>
+                </div>
+                <div class="flex gap-2 w-full sm:w-auto">
+                    <form method="get" action="{% url 'user_list' %}" class="relative flex-1 min-w-[150px]" id="searchForm">
+                        <div class="relative">
+                            <input type="text" 
+                                name="q" 
+                                id="userSearch" 
+                                value="{{ request.GET.q }}"
+                                class="w-full pl-8 pr-2 py-1.5 text-xs border rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
+                                placeholder="Search users..."
+                                aria-label="Search users"
+                                hx-get="{% url 'user_list' %}"
+                                hx-target="#userTable"
+                                hx-trigger="keyup changed delay:500ms"
+                                hx-include="[name='page']">
+                            <span class="search-indicator absolute right-2 top-2 hidden">
+                                <i class="fas fa-spinner fa-spin text-blue-500 text-xs"></i>
+                            </span>
                         </div>
-                    </td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
+                        <input type="hidden" name="page" value="1">
+                    </form>
+                </div>
+            </div>
+
+            <!-- Table -->
+            <div class="overflow-x-auto">
+                <table class="w-full text-xs" id="userTable">
+                    <thead class="text-white bg-blue-600">
+                        <tr>
+                            <th class="px-3 py-2 text-left">User</th>
+                            <th class="px-3 py-2 text-left">Details</th>
+                            <th class="px-3 py-2 text-left">Contact</th>
+                            <th class="px-3 py-2 text-right">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-gray-200">
+                        {% for user in users %}
+                        <tr class="hover:bg-gray-50">
+                            <td class="px-3 py-2 whitespace-nowrap">
+                                <div class="flex items-center gap-2">
+                                    <div class="h-7 w-7 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 text-xs">
+                                        {{ user.full_name|first|upper }}
+                                    </div>
+                                    <div class="min-w-0">
+                                        <div class="font-medium truncate">{{ user.full_name }}</div>
+                                        <div class="text-gray-500 truncate">{{ user.gender.gender }}</div>
+                                    </div>
+                                </div>
+                            </td>
+                            <td class="px-3 py-2 whitespace-nowrap">
+                                <div>{{ user.birth_date|date:"M d, Y" }}</div>
+                                <div class="text-gray-500 truncate">{{ user.address|default:"-" }}</div>
+                            </td>
+                            <td class="px-3 py-2 whitespace-nowrap">
+                                <div class="truncate">{{ user.email }}</div>
+                                <div class="text-gray-500">{{ user.contact_number|default:"-" }}</div>
+                            </td>
+                            <td class="px-3 py-2 whitespace-nowrap text-right">
+                                <div class="flex justify-end gap-1">
+                                    <a href="/user/edit/{{ user.user_id }}/" class="p-1 text-blue-600 hover:bg-blue-100 rounded transition-colors" title="Edit">
+                                        <i class="fas fa-edit text-xs"></i>
+                                    </a>
+                                    <a href="{% url 'delete_user' user.user_id %}" class="p-1 text-red-600 hover:bg-red-100 rounded transition-colors" title="Delete">
+                                        <i class="fas fa-trash-alt text-xs"></i>
+                                    </a>
+                                </div>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="4" class="px-4 py-4 text-center text-gray-400">
+                                <div class="flex flex-col items-center">
+                                    <i class="fas fa-users-slash text-xl mb-1"></i>
+                                    <span class="text-sm">No users found</span>
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Pagination -->
+            {% if users.paginator.num_pages > 1 %}
+            <div class="px-4 py-2 border-t border-gray-200 bg-gray-50 flex flex-col sm:flex-row justify-between items-center gap-2">
+                <div class="text-xs text-gray-500">
+                    Showing {{ users.start_index }}-{{ users.end_index }} of {{ users.paginator.count }}
+                </div>
+                <div class="flex gap-1">
+                    {% if users.has_previous %}
+                        <a href="?page=1{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}" class="p-1 border rounded hover:bg-gray-100 transition-colors" title="First page">
+                            <i class="fas fa-angle-double-left text-xs"></i>
+                        </a>
+                        <a href="?page={{ users.previous_page_number }}{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}" class="p-1 border rounded hover:bg-gray-100 transition-colors" title="Previous page">
+                            <i class="fas fa-angle-left text-xs"></i>
+                        </a>
+                    {% endif %}
+
+                    {% for num in page_range %}
+                        {% if users.number == num %}
+                            <span class="p-1 px-2 border rounded bg-blue-600 text-white">{{ num }}</span>
+                        {% elif num == '…' %}
+                            <span class="p-1 px-2 border rounded">{{ num }}</span>
+                        {% else %}
+                            <a href="?page={{ num }}{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}" class="p-1 px-2 border rounded hover:bg-gray-100 transition-colors">{{ num }}</a>
+                        {% endif %}
+                    {% endfor %}
+
+                    {% if users.has_next %}
+                        <a href="?page={{ users.next_page_number }}{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}" class="p-1 border rounded hover:bg-gray-100 transition-colors" title="Next page">
+                            <i class="fas fa-angle-right text-xs"></i>
+                        </a>
+                        <a href="?page={{ users.paginator.num_pages }}{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}" class="p-1 border rounded hover:bg-gray-100 transition-colors" title="Last page">
+                            <i class="fas fa-angle-double-right text-xs"></i>
+                        </a>
+                    {% endif %}
+                </div>
+            </div>
+            {% endif %}
+        </div>
     </div>
-</div>
 
-
-{% endblock 'content' %}
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const searchForm = document.getElementById('searchForm');
+        const searchInput = document.getElementById('userSearch');
+        
+        if (searchInput && searchForm) {
+            // Submit form when search input changes (with debounce)
+            let searchTimeout;
+            searchInput.addEventListener('input', function() {
+                clearTimeout(searchTimeout);
+                searchTimeout = setTimeout(() => {
+                    // Show loading indicator
+                    const indicator = searchForm.querySelector('.search-indicator');
+                    if (indicator) indicator.classList.remove('hidden');
+                    
+                    // Submit form
+                    searchForm.submit();
+                }, 500);
+            });
+            
+            // Focus search input on '/' key press
+            document.addEventListener('keydown', (e) => {
+                if (e.key === '/' && !['INPUT', 'TEXTAREA'].includes(document.activeElement.tagName)) {
+                    e.preventDefault();
+                    searchInput.focus();
+                }
+            });
+            
+            // Hide loading indicator after form submit
+            searchForm.addEventListener('submit', function() {
+                const indicator = this.querySelector('.search-indicator');
+                if (indicator) indicator.classList.add('hidden');
+            });
+        }
+    });
+    </script>
+    {% endblock 'content' %}

@@ -1,22 +1,114 @@
 {% load static %}
 
 {% if messages %}
-    {% for message in messages %}
-        <div class="toast-success flex ml-64 mt-16  items-center w-full z-60 max-w-xs p-4 mb-4 text-gray-500 bg-white rounded-lg shadow-sm" role="alert">
-            <div class="inline-flex items-center justify-center shrink-0 w-8 h-8 text-green-500 bg-green-100 rounded-lg">
-                <svg class="w-5 h-5" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 20 20">
-                    <path d="M10 .5a9.5 9.5 0 1 0 9.5 9.5A9.51 9.51 0 0 0 10 .5Zm3.707 8.207-4 4a1 1 0 0 1-1.414 0l-2-2a1 1 0 0 1 1.414-1.414L9 10.586l3.293-3.293a1 1 0 0 1 1.414 1.414Z"/>
-                </svg>
-                <span class="sr-only">Check icon</span>
+    {% for message in messages|slice:":1" %}  {# Only show the first/latest message #}
+        <div class="toast-message animate-slide-in-right flex items-center w-full max-w-sm p-4 text-gray-700 bg-white/95 backdrop-blur-sm rounded-xl shadow-xl border border-white/20 hover:shadow-2xl transition-all duration-300 group fixed bottom-4 right-4 z-50" role="alert">
+            <!-- Icon Container -->
+            <div class="inline-flex items-center justify-center shrink-0 w-10 h-10 rounded-full mr-3 group-hover:scale-110 transition-transform duration-300
+                {% if message.tags == 'error' %}text-red-600 bg-red-100
+                {% elif message.tags == 'success' %}text-green-600 bg-green-100
+                {% elif message.tags == 'warning' %}text-yellow-600 bg-yellow-100
+                {% else %}text-blue-600 bg-blue-100{% endif %}">
+                
+                {% if message.tags == 'error' %}
+                    <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"/>
+                    </svg>
+                {% elif message.tags == 'success' %}
+                    <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+                    </svg>
+                {% elif message.tags == 'warning' %}
+                    <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/>
+                    </svg>
+                {% else %}
+                    <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"/>
+                    </svg>
+                {% endif %}
+                
+                <span class="sr-only">
+                    {% if message.tags == 'error' %}Error
+                    {% elif message.tags == 'success' %}Success
+                    {% elif message.tags == 'warning' %}Warning
+                    {% else %}Info{% endif %} icon
+                </span>
             </div>
-            <div class="ms-3 text-sm font-normal">{{ message }}</div>
-            <button type="button" class="ms-auto -mx-1.5 -my-1.5 bg-white text-gray-400 hover:text-gray-900 rounded-lg focus:ring-2 focus:ring-gray-300 p-1.5 hover:bg-gray-100 inline-flex items-center justify-center h-8 w-8" aria-label="Close" onclick="this.parentElement.style.display='none'">
+            
+            <!-- Message Content -->
+            <div class="flex-1 text-sm font-medium text-gray-800 leading-relaxed">
+                {{ message }}
+            </div>
+            
+            <!-- Close Button -->
+            <button type="button" 
+                class="ml-3 -mx-1.5 -my-1.5 bg-white/50 text-gray-400 hover:text-gray-600 rounded-lg focus:ring-2 focus:ring-gray-300 p-1.5 hover:bg-gray-100/80 inline-flex items-center justify-center h-8 w-8 transition-all duration-200 hover:scale-110" 
+                aria-label="Close" 
+                onclick="hideToast(this.parentElement)">
                 <span class="sr-only">Close</span>
-                <svg class="w-3 h-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 14">
-                    <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6"/>
+                <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
                 </svg>
             </button>
+            
+            <!-- Progress Bar -->
+            <div class="absolute bottom-0 left-0 h-1 rounded-full transition-all duration-75 ease-linear
+                {% if message.tags == 'error' %}bg-red-500
+                {% elif message.tags == 'success' %}bg-green-500
+                {% elif message.tags == 'warning' %}bg-yellow-500
+                {% else %}bg-blue-500{% endif %}" 
+                id="toast-progress"></div>
         </div>
     {% endfor %}
-    <script src="{% static 'js/auto_hide-toast.js' %}"></script>
+    
+    <style>
+        @keyframes toast-progress {
+            from { width: 100%; }
+            to { width: 0%; }
+        }
+        
+        .toast-message {
+            position: fixed;
+            bottom: 1rem;
+            right: 1rem;
+            overflow: hidden;
+        }
+    </style>
+    
+    <script>
+        function hideToast(toast) {
+            toast.style.transform = 'translateX(100%)';
+            toast.style.opacity = '0';
+            setTimeout(() => {
+                if (toast.parentNode) {
+                    toast.remove();
+                }
+            }, 300);
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            const toast = document.querySelector('.toast-message');
+            if (!toast) return;
+            
+            const progressBar = toast.querySelector('#toast-progress');
+            progressBar.style.animation = 'toast-progress 5s linear forwards';
+            
+            const hideTimer = setTimeout(() => {
+                hideToast(toast);
+            }, 3000);
+            
+            toast.addEventListener('mouseenter', () => {
+                clearTimeout(hideTimer);
+                progressBar.style.animationPlayState = 'paused';
+            });
+            
+            toast.addEventListener('mouseleave', () => {
+                progressBar.style.animationPlayState = 'running';
+                setTimeout(() => {
+                    hideToast(toast);
+                }, 2000);
+            });
+        });
+    </script>
 {% endif %}

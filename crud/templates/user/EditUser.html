@@ -1,0 +1,179 @@
+{% extends "layout/base.html" %}
+
+{% block 'title' %} Edit User {% endblock 'title' %}
+
+{% block 'content' %}
+<div class="p-4">
+    <div class="bg-white rounded-lg shadow-sm p-6 max-w-4xl mx-auto">
+        <div class="mb-6">
+            <h2 class="text-xl font-bold text-gray-800">Edit User</h2>
+            <p class="text-sm text-gray-600">Update the user information below</p>
+        </div>
+
+        <form method="post" action="{% url 'edit_user' user_id=user.user_id %}" class="space-y-4" id="userForm">
+            {% csrf_token %}
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <!-- Left Column -->
+                <div class="space-y-4">
+                    <div>
+                        <label for="full_name" class="block text-sm font-medium text-gray-700 mb-1">Full Name</label>
+                        <div class="relative">
+                            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                <i class="fas fa-user text-gray-400"></i>
+                            </div>
+                            <input type="text" name="full_name" id="full_name" required
+                                class="pl-10 w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                                value="{{ user.full_name }}">
+                        </div>
+                    </div>
+
+                    <div>
+                        <label for="gender" class="block text-sm font-medium text-gray-700 mb-1">Gender</label>
+                        <div class="relative">
+                            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                <i class="fas fa-venus-mars text-gray-400"></i>
+                            </div>
+                            <select name="gender" id="gender" required
+                                class="pl-10 w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500">
+                                <option value="">Select Gender</option>
+                                {% for gender in genders %}
+                                    <option value="{{ gender.gender_id }}" {% if gender.gender_id == user.gender.gender_id %}selected{% endif %}>
+                                        {{ gender.gender }}
+                                    </option>  
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+
+                    <div>
+                        <label for="birth_date" class="block text-sm font-medium text-gray-700 mb-1">Birth Date</label>
+                        <div class="relative">
+                            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                <i class="fas fa-calendar-alt text-gray-400"></i>
+                            </div>
+                            <input type="date" name="birth_date" id="birth_date" max="{{ today|date:'Y-m-d' }}"
+                                class="pl-10 w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                                value="{{ user.birth_date|date:'Y-m-d' }}">
+                        </div>
+                    </div>
+
+                    <div>
+                        <label for="address" class="block text-sm font-medium text-gray-700 mb-1">Address</label>
+                        <div class="relative">
+                            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                <i class="fas fa-map-marker-alt text-gray-400"></i>
+                            </div>
+                            <input type="text" name="address" id="address"
+                                class="pl-10 w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                                value="{{ user.address }}">
+                        </div>
+                    </div>
+
+                    <div>
+                        <label for="contact_number" class="block text-sm font-medium text-gray-700 mb-1">Contact Number</label>
+                        <div class="relative">
+                            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                <i class="fas fa-phone text-gray-400"></i>
+                            </div>
+                            <input type="text" name="contact_number" id="contact_number"
+                                class="pl-10 w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                                value="{{ user.contact_number }}">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Right Column -->
+                <div class="space-y-4">
+                    <div>
+                        <label for="email" class="block text-sm font-medium text-gray-700 mb-1">Email (Optional)</label>
+                        <div class="relative">
+                            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                <i class="fas fa-envelope text-gray-400"></i>
+                            </div>
+                            <input type="email" name="email" id="email"
+                                class="pl-10 w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                                value="{{ user.email }}">
+                        </div>
+                    </div>
+
+                    <div>
+                        <label for="username" class="block text-sm font-medium text-gray-700 mb-1">Username*</label>
+                        <div class="relative">
+                            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                <i class="fas fa-user-circle text-gray-400"></i>
+                            </div>
+                            <input type="text" name="username" id="username" required
+                                class="pl-10 w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                                value="{{ user.username }}">
+                        </div>
+                        <div id="username-error" class="text-red-500 text-xs mt-1 hidden">Username already exists</div>
+                        <input type="hidden" id="original_username" value="{{ user.username }}">
+                    </div>
+                </div>
+            </div>
+
+            <div class="flex justify-end space-x-3 pt-4">
+                <a href="{% url 'user_list' %}" class="flex items-center bg-gray-200 hover:bg-gray-300 text-gray-800 px-4 py-2 rounded-md text-sm font-medium transition-colors">
+                    <i class="fas fa-arrow-left mr-2"></i> Back
+                </a>
+                <a href="{% url 'change_password' user_id=user.user_id %}" class="flex items-center bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md text-sm font-medium transition-colors">
+                    <i class="fas fa-key mr-2"></i> Change Password
+                </a>
+                <button type="submit" class="flex items-center bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-md text-sm font-medium transition-colors">
+                    <i class="fas fa-save mr-2"></i> Update User
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const form = document.getElementById('userForm');
+    const usernameField = document.getElementById('username');
+    const usernameError = document.getElementById('username-error');
+    const originalUsername = document.getElementById('original_username').value;
+
+    // Username uniqueness check (client-side)
+    async function checkUsername() {
+        const username = usernameField.value;
+        
+        // Skip check if username hasn't changed
+        if (username === originalUsername) {
+            usernameError.classList.add('hidden');
+            return true;
+        }
+        
+        if (!username) return true;
+        
+        try {
+            const response = await fetch(`/user/check-username/?username=${encodeURIComponent(username)}`);
+            const data = await response.json();
+            
+            if (data.exists) {
+                usernameError.classList.remove('hidden');
+                usernameField.focus();
+                return false;
+            }
+            usernameError.classList.add('hidden');
+            return true;
+        } catch (error) {
+            console.error('Error checking username:', error);
+            return true; // Let server handle if client check fails
+        }
+    }
+
+    // Form submission handler
+    form.addEventListener('submit', async function(e) {
+        const isUsernameAvailable = await checkUsername();
+        if (!isUsernameAvailable) {
+            e.preventDefault();
+        }
+        // If available, form will submit normally
+    });
+
+    // Real-time username availability check
+    usernameField.addEventListener('blur', checkUsername);
+});
+</script>
+{% endblock 'content' %}

@@ -1,28 +1,114 @@
 {% extends "layout/base.html" %}
 
-{% block 'title' %}Login{% endblock 'title' %}
+{% block 'title' %}Login - My App{% endblock 'title' %}
 
 {% block 'content' %}
-<div class="flex items-center justify-center min-h-screen bg-gray-100">
-    <form action="/login/" method="post" class="bg-white p-8 rounded shadow-md w-full max-w-sm">
-        {% csrf_token %}
-        <h2 class="text-xl font-bold mb-6 text-center">Login</h2>
-        {% if messages %}
-        <ul>
-            {% for message in messages %}
-            <li class="text-red-500">{{ message }}</li>
-            {% endfor %}
-        </ul>
-        {% endif %}
-        <div class="mb-4">
-            <label for="username" class="block mb-1">Username</label>
-            <input type="text" name="username" id="username" required class="w-full px-3 py-2 border rounded">
+<div class="flex items-center justify-center min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 px-4 sm:px-6 lg:px-8">
+    <!-- Background Pattern -->
+    <div class="absolute inset-0 overflow-hidden pointer-events-none">
+        <div class="absolute -top-10 -right-10 w-40 h-40 bg-blue-400/10 rounded-full blur-3xl"></div>
+        <div class="absolute top-1/2 -left-10 w-60 h-60 bg-purple-400/10 rounded-full blur-3xl"></div>
+        <div class="absolute -bottom-10 left-1/2 w-80 h-80 bg-indigo-400/10 rounded-full blur-3xl"></div>
+    </div>
+    
+    <div class="relative w-full max-w-md z-10">
+        <!-- Login Card -->
+        <div class="bg-white/80 backdrop-blur-xl rounded-2xl shadow-2xl border border-white/20 overflow-hidden animate-fade-in">
+            <!-- Header Section -->
+            <div class="px-6 sm:px-8 pt-8 pb-6 text-center">
+                <div class="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-r from-blue-500 to-purple-600 rounded-2xl mb-4 shadow-lg">
+                    <i class="fas fa-user-lock text-2xl text-white"></i>
+                </div>
+                <h1 class="text-2xl sm:text-3xl font-bold text-gray-900 mb-2">Welcome Back</h1>
+                <p class="text-gray-600 text-sm sm:text-base">Sign in to access your account</p>
+            </div>
+            
+            <!-- Form Section -->
+            <div class="px-6 sm:px-8 pb-8">
+                <form action="{% url 'login' %}" method="post" class="space-y-6" id="loginForm">
+                    {% csrf_token %}
+                    
+                    <!-- Username Field -->
+                    <div class="space-y-2">
+                        <label for="username" class="block text-sm font-semibold text-gray-700">Username</label>
+                        <div class="relative">
+                            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                <i class="fas fa-user text-gray-400"></i>
+                            </div>
+                            <input type="text" 
+                                   name="username" 
+                                   id="username" 
+                                   required
+                                   class="w-full pl-10 pr-3 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
+                                   placeholder="Enter your username"
+                                   autocomplete="username">
+                        </div>
+                    </div>
+                    
+                    <!-- Password Field -->
+                    <div class="space-y-2">
+                        <label for="password" class="block text-sm font-semibold text-gray-700">Password</label>
+                        <div class="relative">
+                            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                <i class="fas fa-lock text-gray-400"></i>
+                            </div>
+                            <input type="password" 
+                                   name="password" 
+                                   id="password" 
+                                   required
+                                   class="w-full pl-10 pr-10 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
+                                   placeholder="Enter your password"
+                                   autocomplete="current-password">
+                            <button type="button" id="togglePassword" class="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-600 transition-colors">
+                                <i class="fas fa-eye" id="togglePasswordIcon"></i>
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <!-- Submit Button -->
+                    <div>
+                        <button type="submit" class="w-full py-2.5 px-4 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-medium rounded-lg transition-all duration-300 shadow-md hover:shadow-lg transform hover:scale-[1.02] active:scale-100">
+                            Log In
+                        </button>
+                    </div>
+                </form>
+            </div>
         </div>
-        <div class="mb-6">
-            <label for="password" class="block mb-1">Password</label>
-            <input type="password" name="password" id="password" required class="w-full px-3 py-2 border rounded">
-        </div>
-        <button type="submit" class="w-full bg-green-600 text-white py-2 rounded hover:bg-green-700">Login</button>
-    </form>
+    </div>
 </div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Password visibility toggle
+    const togglePassword = document.getElementById('togglePassword');
+    const passwordInput = document.getElementById('password');
+    const toggleIcon = document.getElementById('togglePasswordIcon');
+    
+    if (togglePassword && passwordInput && toggleIcon) {
+        togglePassword.addEventListener('click', function() {
+            const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
+            passwordInput.setAttribute('type', type);
+            toggleIcon.classList.toggle('fa-eye-slash');
+        });
+    }
+    
+    // Form submission with loading state
+    const loginForm = document.getElementById('loginForm');
+    if (loginForm) {
+        loginForm.addEventListener('submit', function() {
+            const submitBtn = this.querySelector('button[type="submit"]');
+            if (submitBtn && !submitBtn.disabled) {
+                submitBtn.disabled = true;
+                submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Signing In...';
+                
+                // Re-enable after 5 seconds as fallback
+                setTimeout(() => {
+                    submitBtn.disabled = false;
+                    submitBtn.innerHTML = 'Sign In';
+                }, 5000);
+            }
+        });
+    }
+});
+</script>
 {% endblock 'content' %}
